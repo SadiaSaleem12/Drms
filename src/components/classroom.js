@@ -8,9 +8,8 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   addDoc,
-  setDoc,
-  updateDoc,
   collection,
+  deleteDoc
 } from "firebase/firestore/lite";
 import { useState } from "react";
 import { db } from "../firebase/index";
@@ -22,77 +21,37 @@ const Classroom = (props) => {
   });
   var [showFormval, setShowForm] = useState(false);
   var [id, setId] = useState("");
-  // const state = {showForm: false,id:""}
   const handleChange = (e) => {
     values[e.target.id] = e.target.value;
     setValues({ ...values, values });
     console.log(values);
   };
   const showForm = () => {
-    // const firebaseConfig = {
-    //   apiKey: "AIzaSyDJvLhy3fSxVTHSOyT32X70UPTWK2UQHfM",
-    //   authDomain: "firestore-app-3af45.firebaseapp.com",
-    //   projectId: "firestore-app-3af45",
-    //   storageBucket: "firestore-app-3af45.appspot.com",
-    //   messagingSenderId: "617491569351",
-    //   appId: "1:617491569351:web:5efa7bf5010a5c00fe7ce2",
-    //   measurementId: "G-235WTYHX3D"
-    // };
-    // const app = initializeApp(firebaseConfig);
-    // const db = getFirestore(app)
-
-    // Form.addEventListener(("submit"),(e)=>{
-    //   e.preventDefault();
-    //   if (id="r1-mon-slot1")
-    //    db.collection("room1/monday/slot1").add({
-    //           course: Form.course.value,
-    //           date : Form.date.value
-    //    })
-    //   //  form.course.value="";
-    //   //  form.slot.value="";
-    // })
-
-    // const getData = () =>{
-
-    // // console.log(id)
-
-    //   // Form.addEventListener(("submit"),(e)=>{
-    //   //   e.preventDefault();
-    //     if (id="r1-mon-slot1")
-    //       db.collection('room1').document('monday').collection('slot1').setDoc(
-    //       {
-    //         course: Form.name.value,
-    //         date : Form.date.value
-    //  })
-
-    //  Form.course.value="";
-    //  Form.date.value="";
-    //     //  db.collection("room1/monday/slot1").add({
-    //     //         course: Form.course.value,
-    //     //         date : Form.date.value
-    //     //  })
-    //     //  Form.course.value="";
-    //     //  Form.date.value="";
-    //   // })
-    // }
+  
     const saveChanges = async () => {
-      if ((id = "r1-mon-slot1"))
+      if (id = "r1-mon-slot1")
         await addDoc(collection(db, "room1/monday/slot1"), {
           course: values.course,
           date: values.date,
-        })
-          .then((res) => {
-            console.log("Data is entered successfully");
+        }).then((res) => {
+            console.log("Slot entered successfully");
           })
           .catch((err) => {
             console.log(err);
           });
-      console.log(values);
-    };
- const removeClass =()=>{
 
+    };
+    const removeClass = async ()=>{
+        if (id="r1-mon-slot1")
+           await  deleteDoc(collection(db,"room1/monday/slot1"))
+           .then(()=>{
+             console.log("Slot removed successfully")
+           }).catch((err)=>{
+             console.log(err)
+           })
  }
     return (
+
       <div>
         <Form db={db}>
           <Form.Group className="mt-3">
@@ -137,6 +96,10 @@ const Classroom = (props) => {
               <Nav.Link href="#room3">Room3</Nav.Link>
               <Nav.Link href="#room4">Room4</Nav.Link>
               <Nav.Link href="#room5">Room5</Nav.Link>
+              <Nav.Link href="#room6">Room6</Nav.Link>
+              <Nav.Link href="#room7">Room7</Nav.Link>
+              <Nav.Link href="#room8">Room8</Nav.Link>
+
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -157,14 +120,13 @@ const Classroom = (props) => {
           <tr>
             <td id="slot1">8:30-9:20</td>
             <td>
-                <div className='row'>
-                <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true); setId("r1-mon-slot1")}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns' onClick={()=>{removeClass();setId('r1-mon-slot2')}}><FaTrash /></Button></div>
-                  
+                <div className='row' id="r1-mon-slot1">
+                       <p> DWM (G1) </p>
                 </div>
                 </td>
-            {/* <td>
+             <td>
                 <div className='row'>
+                  
                 <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true); setId("r1-tues-slot1")}}><FaPencilAlt/></Button></div>
                   <div className='col-md-4'><Button className='btns'><FaTrash /></Button></div>
                   
@@ -172,9 +134,7 @@ const Classroom = (props) => {
                 </td>
                 <td>
                 <div className='row'>
-               <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true); setId("r1-wed-slot1")}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'> <FaTrash/></Button></div>
-                  
+                <p> MS(G1) </p>
                 </div>
                 </td>
                 <td>
@@ -190,14 +150,13 @@ const Classroom = (props) => {
                   <div className='col-md-4'><Button className='btns'><FaTrash /></Button></div>
                   
                 </div>
-                </td> */}
+                </td> 
           </tr>
-          {/* <tr>
+           <tr>
                 <td id="slot2">9:20-11:00</td>
                 <td>
                   <div className='row'>
-             <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'><FaTrash /></Button></div>
+                       <p>NIS (G1)</p>
                   
                 </div>
                         </td>
@@ -210,8 +169,7 @@ const Classroom = (props) => {
                 </td>
                 <td>
                 <div className='row'>
-               <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'> <FaTrash /></Button></div>
+              <p>NM (G1)</p>
                   
                 </div>
                 </td>
@@ -233,12 +191,10 @@ const Classroom = (props) => {
              <tr>
                 <td id="slot3">11:30-1:10</td>
                 <td>
-                  <div className='row'>
-                <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'><FaTrash /></Button></div>
-                  
+                <div className='row'>
+                  <p>MS (G1)</p>
                 </div>
-                        </td>
+                </td>
                 <td>
                 <div className='row'>
                 <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
@@ -248,9 +204,7 @@ const Classroom = (props) => {
                 </td>
                 <td>
                 <div className='row'>
-               <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'> <FaTrash /></Button></div>
-                  
+                       <p>DWM (G1)</p>
                 </div>
                 </td>
                 <td>
@@ -272,9 +226,7 @@ const Classroom = (props) => {
                 <td id="slot4">2:00-2:50</td>
                 <td>
                   <div className='row'>
-                <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'><FaTrash /></Button></div>
-                  
+               <p>NM (G1)</p>
                 </div>
                         </td>
                 <td>
@@ -286,9 +238,7 @@ const Classroom = (props) => {
                 </td>
                 <td>
                 <div className='row'>
-                <div className='col-md-4'><Button className='btns' onClick={() => {setShowForm(true)}}><FaPencilAlt/></Button></div>
-                  <div className='col-md-4'><Button className='btns'> <FaTrash /></Button></div>
-                  
+                <p> NIS (G1)</p>
                 </div>
                 </td>
                 <td>
@@ -381,7 +331,7 @@ const Classroom = (props) => {
                   
                 </div>
                 </td>
-             </tr> */}
+             </tr> 
         </tbody>
       </table>
       {showFormval ? showForm() : null}
