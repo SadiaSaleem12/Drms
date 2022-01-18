@@ -1,12 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import { Form, Button, Nav, Navbar, Container } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
 import { FaPencilAlt } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "firebase/app";
 import { initializeApp } from "firebase/app";
+import { Link } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import {
+  onSnapshot,
   getFirestore,
   addDoc,
   collection,
@@ -15,7 +17,7 @@ import {
   deleteField,
   updateDoc,
   getDoc,
-} from "firebase/firestore/lite";
+} from "firebase/firestore";
 import { useState } from "react";
 import { db } from "../firebase/index";
 
@@ -26,21 +28,22 @@ const Classroom = (props) => {
   });
   var [showFormval, setShowForm] = useState(false);
   var [id, setId] = useState("");
-  const [roomDetails, setRoomDetails] = useState("");
+  const [roomDetails, setRoomDetails] = useState([]);
+  var [fields, setFields] = useState({});
+
   const handleChange = (e) => {
     values[e.target.id] = e.target.value;
     setValues({ ...values, values });
     // console.log(values);
   };
   const removeClass = async () => {
-    if ((id = "r1-tues-slot1"))
-      await deleteDoc(collection(db, "room1/tuesday/slot1"))
-        .then(() => {
-          console.log("Slot removed successfully");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    await deleteDoc(collection(db, `room1${id}`))
+      .then(() => {
+        console.log("Slot removed successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   // const addData = async () => {
   //   const docRef = doc(db, "room1/tuesday/slot1", doc(id));
@@ -51,59 +54,108 @@ const Classroom = (props) => {
   //     console.log("no data");
   //   }
   // };
+
+  //   const addData= async (db) => {
+  //  // const db = firebase.firestore();
+  // const ref = db.collection('room1/tuesday/slot1').doc()
+
+  //   let getDoc = ref.get()
+  //   .then(doc => {
+  //     if (!doc.exists) {
+  //       console.log('No such document!');
+  //     } else {
+  //       console.log('Document data:', doc.data());
+  //     }
+  //   })
+  //   .catch(err => {
+  //     console.log('Error getting document', err);
+  //   });
+  // }
+  //   useEffect(()=>{
+
+  //       addData()
+  //   })
   const showForm = () => {
     const saveChanges = async () => {
+      const firebaseConfig = {
+        
+        // apiKey: process.env.REACT_APP_apiKey,
+        // authDomain: process.env.REACT_APP_authDomain,
+        // projectId: process.env.REACT_APP_projectId,
+        // storageBucket: process.env.REACT_APP_storageBucket,
+        // messagingSenderId: process.env.REACT_APP_messagingSenderId,
+        // appId: process.env.REACT_APP_appId,
+        // measurementId: process.env.REACT_APP_measurementId,
+        apiKey: "AIzaSyDJvLhy3fSxVTHSOyT32X70UPTWK2UQHfM",
+         authDomain: "firestore-app-3af45.firebaseapp.com",
+         databaseURL: "https://firestore-app-3af45-default-rtdb.firebaseio.com",
+          projectId: "firestore-app-3af45",
+          storageBucket: "firestore-app-3af45.appspot.com",
+          messagingSenderId: "617491569351",
+          appId: "1:617491569351:web:5efa7bf5010a5c00fe7ce2",
+          measurementId: "G-235WTYHX3D"
       
-const firebaseConfig = {
-  apiKey: "AIzaSyDJvLhy3fSxVTHSOyT32X70UPTWK2UQHfM",
-  authDomain: "firestore-app-3af45.firebaseapp.com",
-  projectId: "firestore-app-3af45",
-  storageBucket: "firestore-app-3af45.appspot.com",
-  messagingSenderId: "617491569351",
-  appId: "1:617491569351:web:5efa7bf5010a5c00fe7ce2",
-  measurementId: "G-235WTYHX3D",
-};
-const app = initializeApp(firebaseConfig);
- const auth = getAuth(app);
- const db = getFirestore(app);
-      if (id = "r1-tues-slot1") {
-        await addDoc(collection(db,"room1/tuesday/slot1"), {
-          course: values.course,
-          date: values.date,
-        }).then((res) => {
-          var div = document.getElementById("r1-tues-slot1");
-          var p = document.createElement("p");
-          p.textContent = values.course;
-          console.log(p);
-          div.appendChild(p);
-          console.log("Slot entered successfully");
-            //  const docRef= doc(db,"room1/tuesday/slot1",doc.id);
-            //  const docSnap = await
-            //  getDoc(docRef).then( (snapshot)=> setRoomDetails(snapshot.data().course));
-            // addData();
-          // console.log(setRoomDetails());
-            // p.setAttribute("slot-id", doc(id)); // id undefined error
-            // console.log(doc.data().course);
-            // p.textContent = setRoomDetails();
-          })
-          // var p = document.createElement("p");
-          // p.setAttribute("slot-id",doc.id); // id undefined error
-          // // console.log(doc.data().course);
-          // p.textContent = values.course;
-          // var div = document.getElementById("r1-tues-slot1")
-          //    div.appendChild(p);
-          //   console.log("Slot entered successfully");
-          // })
-          .catch((err) => {
-            console.log(err);
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      await addDoc(collection(db, `room2${id}`), {
+        course: values.course,
+        date: values.date,
+      })
+        .then((res) => {
+          var response = res._key.path.segments[3];
+          //  console.log(res._key.path.segments[3]);
+          var docRef = doc(db, `room2${id}`, `${response}`);
+          onSnapshot(docRef, (doc) => {
+            if (id == "/tuesday/slot1") {
+              setFields({
+                tuesday_slot1: {
+                  course: doc.data().course,
+                  ids: id,
+                },
+              });
+              var div = document.getElementById(`${id}`);
+              console.log(div);
+              var p = document.createElement("p");
+              p.textContent = doc.data().course;
+              // console.log(p);
+              div.appendChild(p);
+              console.log("Slot entered successfully");
+              console.log(fields);
+            }
+            //  console.log(doc.data().course)
           });
-      }
+
+          //  const docRef= doc(db,"room1/tuesday/slot1",doc.id);
+          //  const docSnap = await
+          //  getDoc(docRef).then( (snapshot)=> setRoomDetails(snapshot.data().course));
+          // addData();
+          // console.log(setRoomDetails());
+          // p.setAttribute("slot-id", doc(id)); // id undefined error
+          // console.log(doc.data().course);
+          // p.textContent = setRoomDetails();
+        })
+        // var p = document.createElement("p");
+        // p.setAttribute("slot-id",doc.id); // id undefined error
+        // // console.log(doc.data().course);
+        // p.textContent = values.course;
+        // var div = document.getElementById("r1-tues-slot1")
+        //    div.appendChild(p);
+        //   console.log("Slot entered successfully");
+        // })
+        .catch((err) => {
+          console.log(err);
+        });
     };
+
     return (
       <div>
-        <Form db={db}>
+        <Form db={db} id="formclass">
           <Form.Group className="mt-3">
-            <Form.Label>Enter Class Details</Form.Label>
+            <Form.Label id="label">Add Class Details</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter course name"
@@ -119,6 +171,7 @@ const app = initializeApp(firebaseConfig);
               onChange={handleChange}
             />
             <Button
+              id="submitbtn"
               onClick={() => {
                 setShowForm(false);
                 saveChanges();
@@ -131,23 +184,45 @@ const app = initializeApp(firebaseConfig);
       </div>
     );
   };
-
+  useEffect(() => {}, []);
   return (
     <div>
+      <Link to="/Dashboard">
+        {" "}
+        <button id="dashbtn">Dashboard</button>
+      </Link>
+      <h1 id="mainhead">Departmental Resource Management System</h1>
+      {showFormval ? showForm() : null}
       <Navbar bg="light" expand="lg">
         <Container>
-          <Navbar.Brand href="#home">Classrooms</Navbar.Brand>
+          <Navbar.Brand id="navbarbrand">Classrooms</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="/classroom">Room1</Nav.Link>
-              <Nav.Link href="/room2">Room2</Nav.Link>
-              <Nav.Link href="/room3">Room3</Nav.Link>
-              <Nav.Link href="/room4">Room4</Nav.Link>
-              <Nav.Link href="/room5">Room5</Nav.Link>
-              <Nav.Link href="/room6">Room6</Nav.Link>
-              <Nav.Link href="/classroom">Room7</Nav.Link>
-              <Nav.Link href="/room8">Room8</Nav.Link>
+              <Nav.Link href="/classroom" id="navbarlinks">
+                Room1
+              </Nav.Link>
+              <Nav.Link href="/room2" id="navbarlinks">
+                Room2
+              </Nav.Link>
+              <Nav.Link href="/room3" id="navbarlinks">
+                Room3
+              </Nav.Link>
+              <Nav.Link href="/room4" id="navbarlinks">
+                Room4
+              </Nav.Link>
+              <Nav.Link href="/room5" id="navbarlinks">
+                Room5
+              </Nav.Link>
+              <Nav.Link href="/room6" id="navbarlinks">
+                Room6
+              </Nav.Link>
+              <Nav.Link href="/classroom" id="navbarlinks">
+                Room7
+              </Nav.Link>
+              <Nav.Link href="/room8" id="navbarlinks">
+                Room8
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -168,18 +243,22 @@ const app = initializeApp(firebaseConfig);
           <tr>
             <td id="slot1">8:30-9:20</td>
             <td>
-              <div className="row" id="r1-mon-slot1">
+              <div className="row" id="/monday/slot1">
                 <p> DWM (G1) </p>
               </div>
             </td>
             <td>
-              <div className="row" id="r1-tues-slot1">
+              <div className="row" id="/tuesday/slot1">
+                {/* {roomDetails.map(room =>(
+                  return
+                  <li key ={room.course}>{room.course}</li>
+                ))} */}
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
-                      setId("r1-tues-slot1");
+                      setId("/tuesday/slot1");
                     }}
                   >
                     <FaPencilAlt />
@@ -187,11 +266,10 @@ const app = initializeApp(firebaseConfig);
                 </div>
                 <div className="col-md-4">
                   <Button
-
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       removeClass();
-                      setId("r1-tues-slot1");
+                      setId("/tuesday/slot1");
                     }}
                   >
                     <FaTrash />
@@ -200,25 +278,25 @@ const app = initializeApp(firebaseConfig);
               </div>
             </td>
             <td>
-              <div className="row" id="r1-wed-slot1">
+              <div className="row" id="/wednesday/slot1">
                 <p> MS(G1) </p>
               </div>
             </td>
             <td>
-              <div className="row" id="r1-thurs-slot1">
+              <div className="row" id="/thursday/slot1">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
-                      setId("r1-thurs-slot1");
+                      setId("/friday/slot1");
                     }}
                   >
                     <FaPencilAlt />
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -228,7 +306,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot1">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                       setId("r1-fri-slot1");
@@ -238,7 +316,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -256,7 +334,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-tues-slot2">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -265,14 +343,14 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
               </div>
             </td>
             <td>
-              <div className="row"id="r1-wed-slot2"> 
+              <div className="row" id="r1-wed-slot2">
                 <p>NM (G1)</p>
               </div>
             </td>
@@ -280,7 +358,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-thurs-slot2">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -289,7 +367,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -299,7 +377,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot2">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -308,7 +386,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -326,7 +404,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-tues-slot3">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -335,7 +413,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -350,7 +428,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-thurs-slot3">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -359,7 +437,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -369,7 +447,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot3">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -378,7 +456,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -396,7 +474,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-tues-slot4">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -405,7 +483,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -420,7 +498,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-thurs-slot4">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -429,7 +507,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -439,7 +517,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot4">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -448,7 +526,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -461,7 +539,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-mon-slot5">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -470,7 +548,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -480,7 +558,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-tues-slot5">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -489,7 +567,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -499,7 +577,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-wed-slot5">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -508,7 +586,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     {" "}
                     <FaTrash />
                   </Button>
@@ -519,7 +597,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-thurs-slot5">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -528,7 +606,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -538,7 +616,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot5">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -547,7 +625,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -560,7 +638,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-mon-slot6">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -569,7 +647,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -579,7 +657,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-tues-slot6">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -588,7 +666,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -598,7 +676,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-wed-slot6">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -607,8 +685,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
-                    {" "}
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -618,7 +695,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-thurs-slot6">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -627,7 +704,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -637,7 +714,7 @@ const app = initializeApp(firebaseConfig);
               <div className="row" id="r1-fri-slot6">
                 <div className="col-md-4">
                   <Button
-                    className="btns"
+                    id="btns"
                     onClick={() => {
                       setShowForm(true);
                     }}
@@ -646,7 +723,7 @@ const app = initializeApp(firebaseConfig);
                   </Button>
                 </div>
                 <div className="col-md-4">
-                  <Button className="btns">
+                  <Button id="btns">
                     <FaTrash />
                   </Button>
                 </div>
@@ -655,7 +732,6 @@ const app = initializeApp(firebaseConfig);
           </tr>
         </tbody>
       </table>
-      {showFormval ? showForm() : null}
     </div>
   );
 };
